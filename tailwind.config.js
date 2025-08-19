@@ -21,6 +21,13 @@ export default {
           700: '#dbc58e',
           800: '#ceb579',
           900: '#c1a564',
+        },
+        'gradient': {
+          'coral': '#FFB5A7',
+          'peach': '#FCD5CE',
+          'lavender': '#E8B4F5',
+          'cream': '#FFF3B0',
+          'soft-beige': '#F5F5DC',
         }
       },
       backgroundColor: {

@@ -4,7 +4,7 @@ import DexamethasoneTest from './components/DexamethasoneTest'
 
 function App() {
   return (
-    <div className="min-h-screen bg-beige-500 text-gray-800">
+    <div className="min-h-screen text-gray-800">
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/dexamethasone" element={<DexamethasoneTest />} />

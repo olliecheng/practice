@@ -8,3 +8,5 @@ The sitemap looks like this:
 - /dexamethasone: dexamethasone suppression test
 
 The style should be minimal, with a beige background colour, and modern theme. The typeface should be Fira Sans.
+
+- Only look at the background dev shell to see if your changes have compiled properly.

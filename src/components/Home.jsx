@@ -13,7 +13,7 @@ function Home() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <Link 
           to="/dexamethasone" 
-          className="block bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6 border border-gray-200"
+          className="block bg-white/90 backdrop-blur-sm rounded-lg shadow-lg hover:shadow-xl hover:bg-white/95 transition-all duration-300 p-6 border border-gray-200/50"
         >
           <h2 className="text-xl font-semibold text-gray-800 mb-3">
             Dexamethasone Suppression Test
@@ -27,7 +27,7 @@ function Home() {
           </div>
         </Link>
 
-        <div className="block bg-gray-100 rounded-lg p-6 border border-gray-200 opacity-50">
+        <div className="block bg-white/60 backdrop-blur-sm rounded-lg p-6 border border-gray-200/50 opacity-60">
           <h2 className="text-xl font-semibold text-gray-500 mb-3">
             More Tests Coming Soon
           </h2>

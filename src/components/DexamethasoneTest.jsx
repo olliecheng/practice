@@ -6,6 +6,14 @@ function DexamethasoneTest() {
   const [selectedDiagnosis, setSelectedDiagnosis] = useState(null)
   const [showFeedback, setShowFeedback] = useState(false)
   const [score, setScore] = useState({ correct: 0, total: 0 })
+  
+  // Progressive disclosure states
+  const [currentStage, setCurrentStage] = useState(1)
+  const [suppressionAssessment, setSuppressionAssessment] = useState({
+    lowDoseSuppress: false,
+    highDoseSuppress: false
+  })
+  const [suppressionFeedback, setSuppressionFeedback] = useState(null)
 
   const generateRandomCase = useCallback(() => {
     const diagnoses = ['normal', 'cushing-disease', 'adrenal-cushing', 'ectopic-acth']
@@ -88,28 +96,70 @@ function DexamethasoneTest() {
     setCurrentCase(generateRandomCase())
     setSelectedDiagnosis(null)
     setShowFeedback(false)
+    setCurrentStage(1)
+    setSuppressionAssessment({ lowDoseSuppress: false, highDoseSuppress: false })
+    setSuppressionFeedback(null)
+  }
+
+  const getCorrectSuppressionPattern = (caseData) => {
+    const { labs } = caseData
+    const baselineCortisol = labs.baselineCortisol
+    
+    // Determine if suppression occurred (>50% reduction is considered suppression)
+    const lowDoseSuppressionThreshold = baselineCortisol * 0.5
+    const highDoseSuppressionThreshold = baselineCortisol * 0.5
+    
+    return {
+      lowDoseSuppress: labs.lowDoseCortisol < lowDoseSuppressionThreshold,
+      highDoseSuppress: labs.highDoseCortisol < highDoseSuppressionThreshold
+    }
+  }
+
+  const handleSuppressionAssessment = () => {
+    const correctPattern = getCorrectSuppressionPattern(currentCase)
+    const isCorrect = 
+      suppressionAssessment.lowDoseSuppress === correctPattern.lowDoseSuppress &&
+      suppressionAssessment.highDoseSuppress === correctPattern.highDoseSuppress
+    
+    setSuppressionFeedback({
+      isCorrect,
+      correctPattern,
+      userPattern: suppressionAssessment
+    })
+    setCurrentStage(2)
+  }
+
+  const handleSuppressionChange = (type) => {
+    setSuppressionAssessment(prev => ({
+      ...prev,
+      [type]: !prev[type]
+    }))
   }
 
   const getDiagnosisInfo = (diagnosis) => {
     const info = {
       'normal': {
         title: 'Normal HPA Axis',
-        explanation: 'Normal suppression with low dose dexamethasone indicates intact hypothalamic-pituitary-adrenal axis function. This patient may have pseudo-Cushing syndrome or subclinical hypercortisolism.',
+        explanation: 'Normal suppression with low dose dexamethasone (>50% reduction) indicates intact hypothalamic-pituitary-adrenal axis function. The low-dose suppression rules out pathological hypercortisolism. This patient may have pseudo-Cushing syndrome or subclinical hypercortisolism.',
+        suppressionPattern: 'Low dose: Suppresses, High dose: Suppresses',
         color: 'green'
       },
       'cushing-disease': {
         title: 'Cushing Disease (Pituitary Adenoma)',
-        explanation: 'Elevated baseline cortisol/ACTH with lack of suppression to low dose but >50% suppression with high dose dexamethasone indicates pituitary adenoma secreting ACTH.',
+        explanation: 'Elevated baseline cortisol/ACTH with lack of suppression to low dose but >50% suppression with high dose dexamethasone indicates pituitary adenoma secreting ACTH. The pituitary adenoma retains some sensitivity to high-dose dexamethasone feedback.',
+        suppressionPattern: 'Low dose: No suppression, High dose: Suppresses',
         color: 'purple'
       },
       'adrenal-cushing': {
         title: 'Primary Adrenal Disease',
-        explanation: 'Very high cortisol with suppressed ACTH and no suppression with either dexamethasone dose indicates autonomous cortisol production from adrenal adenoma or carcinoma.',
+        explanation: 'Very high cortisol with suppressed ACTH and no suppression with either dexamethasone dose indicates autonomous cortisol production from adrenal adenoma or carcinoma. The adrenal tissue operates independently of hypothalamic-pituitary control.',
+        suppressionPattern: 'Low dose: No suppression, High dose: No suppression',
         color: 'red'
       },
       'ectopic-acth': {
         title: 'Ectopic ACTH Syndrome',
-        explanation: 'Markedly elevated cortisol and ACTH with no suppression to either dexamethasone dose indicates ACTH secretion from a non-pituitary tumor (lung, pancreas, etc.).',
+        explanation: 'Markedly elevated cortisol and ACTH with no suppression to either dexamethasone dose indicates ACTH secretion from a non-pituitary tumor (lung, pancreas, etc.). These tumors do not respond to dexamethasone feedback mechanisms.',
+        suppressionPattern: 'Low dose: No suppression, High dose: No suppression',
         color: 'yellow'
       }
     }
@@ -177,7 +227,7 @@ function DexamethasoneTest() {
           </p>
         </div>
 
-        {/* Lab Results Table */}
+        {/* Lab Results Table - Always visible */}
         <div className="mb-8">
           <h3 className="text-lg font-semibold mb-4">Laboratory Results</h3>
           <div className="overflow-x-auto">
@@ -203,12 +253,16 @@ function DexamethasoneTest() {
                 <tr>
                   <td className="border border-gray-300 p-3 font-medium">Low Dose Dex Cortisol</td>
                   <td className="border border-gray-300 p-3 text-center">{currentCase.labs.lowDoseCortisol} μg/dL</td>
-                  <td className="border border-gray-300 p-3 text-center text-gray-600">&lt;5 μg/dL (normal suppression)</td>
+                  <td className="border border-gray-300 p-3 text-center text-gray-600">
+                    {currentStage === 1 ? `Baseline: ${currentCase.labs.baselineCortisol} μg/dL` : '<5 μg/dL (normal suppression)'}
+                  </td>
                 </tr>
                 <tr className="bg-gray-25">
                   <td className="border border-gray-300 p-3 font-medium">High Dose Dex Cortisol</td>
                   <td className="border border-gray-300 p-3 text-center">{currentCase.labs.highDoseCortisol} μg/dL</td>
-                  <td className="border border-gray-300 p-3 text-center text-gray-600">&lt;5 μg/dL (normal suppression)</td>
+                  <td className="border border-gray-300 p-3 text-center text-gray-600">
+                    {currentStage === 1 ? `Baseline: ${currentCase.labs.baselineCortisol} μg/dL` : '<5 μg/dL (normal suppression)'}
+                  </td>
                 </tr>
                 {currentCase.labs.followUpACTH && (
                   <tr>
@@ -222,8 +276,84 @@ function DexamethasoneTest() {
           </div>
         </div>
 
-        {/* Diagnosis Selection */}
-        {!showFeedback && (
+        {/* Suppression Assessment - Always visible once case starts */}
+        <div className="mb-8">
+          <h3 className="text-lg font-semibold mb-4">Suppression Assessment</h3>
+          <p className="text-gray-600 mb-6">
+            Based on the dexamethasone suppression test results above, which doses effectively suppressed cortisol? 
+            (Suppression is typically defined as &gt;50% reduction from baseline)
+          </p>
+          
+          <div className="space-y-4">
+            <label className={`flex items-center p-4 border border-gray-300 rounded-lg ${
+              currentStage === 1 ? 'hover:bg-gray-50 cursor-pointer' : 'bg-gray-50 cursor-not-allowed'
+            }`}>
+              <input
+                type="checkbox"
+                checked={suppressionAssessment.lowDoseSuppress}
+                onChange={() => currentStage === 1 && handleSuppressionChange('lowDoseSuppress')}
+                disabled={currentStage !== 1}
+                className="mr-4 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded disabled:opacity-50"
+              />
+              <div>
+                <div className="font-medium">Low dose dexamethasone suppresses cortisol</div>
+                <div className="text-sm text-gray-600">
+                  {currentCase.labs.lowDoseCortisol} μg/dL represents effective suppression from baseline ({currentCase.labs.baselineCortisol} μg/dL)
+                </div>
+              </div>
+            </label>
+            
+            <label className={`flex items-center p-4 border border-gray-300 rounded-lg ${
+              currentStage === 1 ? 'hover:bg-gray-50 cursor-pointer' : 'bg-gray-50 cursor-not-allowed'
+            }`}>
+              <input
+                type="checkbox"
+                checked={suppressionAssessment.highDoseSuppress}
+                onChange={() => currentStage === 1 && handleSuppressionChange('highDoseSuppress')}
+                disabled={currentStage !== 1}
+                className="mr-4 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded disabled:opacity-50"
+              />
+              <div>
+                <div className="font-medium">High dose dexamethasone suppresses cortisol</div>
+                <div className="text-sm text-gray-600">
+                  {currentCase.labs.highDoseCortisol} μg/dL represents effective suppression from baseline ({currentCase.labs.baselineCortisol} μg/dL)
+                </div>
+              </div>
+            </label>
+          </div>
+          
+          {currentStage === 1 && (
+            <div className="mt-6">
+              <button
+                onClick={handleSuppressionAssessment}
+                className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+              >
+                Continue to Diagnosis
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Simple Suppression Feedback - Positioned directly below checkboxes */}
+        {currentStage >= 2 && suppressionFeedback && (
+          <div className={`p-4 rounded-lg border mb-8 text-center ${
+            suppressionFeedback.isCorrect 
+              ? 'bg-green-100 border-green-300 text-green-800' 
+              : 'bg-red-100 border-red-300 text-red-800'
+          }`}>
+            <h3 className="text-lg font-semibold mb-2">
+              {suppressionFeedback.isCorrect ? 'Correct!' : 'Incorrect'}
+            </h3>
+            {!suppressionFeedback.isCorrect && (
+              <p className="text-sm">
+                Correct answer: {suppressionFeedback.correctPattern.lowDoseSuppress ? 'Low dose suppresses' : 'Low dose does not suppress'}, {suppressionFeedback.correctPattern.highDoseSuppress ? 'High dose suppresses' : 'High dose does not suppress'}
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Diagnosis Selection - Only show in Stage 2 */}
+        {currentStage === 2 && !showFeedback && (
           <div>
             <h3 className="text-lg font-semibold mb-4">Select Your Diagnosis</h3>
             <div className="grid gap-3 md:grid-cols-2">
@@ -288,6 +418,12 @@ function DexamethasoneTest() {
               <p className={`mt-3 ${selectedDiagnosis === currentCase.diagnosis ? 'text-green-700' : 'text-red-700'}`}>
                 {getDiagnosisInfo(currentCase.diagnosis).explanation}
               </p>
+              
+              <div className={`mt-4 p-3 rounded ${selectedDiagnosis === currentCase.diagnosis ? 'bg-green-50' : 'bg-red-50'}`}>
+                <p className={`text-sm font-medium ${selectedDiagnosis === currentCase.diagnosis ? 'text-green-800' : 'text-red-800'}`}>
+                  Expected suppression pattern: {getDiagnosisInfo(currentCase.diagnosis).suppressionPattern}
+                </p>
+              </div>
             </div>
             
             <div className="text-center">
