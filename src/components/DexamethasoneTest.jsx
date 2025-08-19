@@ -163,11 +163,11 @@ function DexamethasoneTest() {
   if (!currentCase) {
     return (
       <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <header className="text-center mb-8">
+        <header className="text-left mb-8">
           <Link to="/" className="text-blue-600 hover:text-blue-800 mb-4 inline-block">
             ← Back to Tests
           </Link>
-          <h1 className="text-3xl font-bold text-gray-800 mb-4">
+          <h1 className="font-serif text-3xl font-bold text-gray-800 mb-4">
             Dexamethasone Suppression Test
           </h1>
           <p className="text-gray-600">
@@ -176,14 +176,13 @@ function DexamethasoneTest() {
         </header>
 
         <div className="bg-white rounded-lg shadow-md p-8 border border-gray-200 text-center">
-          <h2 className="text-2xl font-semibold mb-6">Ready to Start?</h2>
           <p className="text-gray-600 mb-8">
             Each case presents a patient with confirmed hypercortisolism and results from low and high dose 
             dexamethasone suppression testing. Analyze the lab patterns to determine the source of excess cortisol.
           </p>
           <button
             onClick={startNewCase}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-lg font-medium transition-colors"
+            className="font-serif bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-lg font-medium transition-colors"
           >
             Generate First Case
           </button>
@@ -198,7 +197,7 @@ function DexamethasoneTest() {
         <Link to="/" className="text-blue-600 hover:text-blue-800 mb-4 inline-block">
           ← Back to Tests
         </Link>
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">
+        <h1 className="font-serif text-3xl font-bold text-gray-800 mb-4">
           Dexamethasone Suppression Test
         </h1>
         <p className="text-gray-600">

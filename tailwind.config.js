@@ -8,6 +8,7 @@ export default {
     extend: {
       fontFamily: {
         'sans': ['Fira Sans', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        'serif': ["Bricolage Grotesque Variable", "sans-serif"]
       },
       colors: {
         'beige': {

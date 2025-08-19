@@ -4,6 +4,9 @@ import { BrowserRouter } from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'
 
+import '@fontsource-variable/hanken-grotesk';
+import '@fontsource-variable/bricolage-grotesque';
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>

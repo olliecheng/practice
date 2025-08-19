@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 body {
-  font-family: 'Fira Sans', sans-serif;
+  font-family: 'Hanken Grotesk Variable', sans-serif;
   background-image: url('/background.jpg');
   background-size: cover;
   background-position: center;
