@@ -19,7 +19,7 @@ function DexamethasoneTest() {
     const diagnoses = ['normal', 'cushing-disease', 'adrenal-cushing', 'ectopic-acth']
     const diagnosis = diagnoses[Math.floor(Math.random() * diagnoses.length)]
     
-    let baselineCortisol, baselineACTH, lowDoseCortisol, highDoseCortisol, followUpACTH
+    let baselineCortisol, baselineACTH, lowDoseCortisol, highDoseCortisol
     
     switch (diagnosis) {
       case 'normal':
@@ -27,7 +27,6 @@ function DexamethasoneTest() {
         baselineACTH = Math.round(Math.random() * 40 + 15)                 // 15-55 pg/mL
         lowDoseCortisol = Math.round((Math.random() * 3 + 1) * 10) / 10    // 1.0-4.0 μg/dL
         highDoseCortisol = Math.round((Math.random() * 2 + 0.5) * 10) / 10 // 0.5-2.5 μg/dL
-        followUpACTH = null
         break
         
       case 'cushing-disease':
@@ -35,7 +34,6 @@ function DexamethasoneTest() {
         baselineACTH = Math.round(Math.random() * 140 + 60)                // 60-200 pg/mL
         lowDoseCortisol = Math.round((baselineCortisol * (0.7 + Math.random() * 0.25)) * 10) / 10  // 70-95% of baseline
         highDoseCortisol = Math.round((baselineCortisol * (0.2 + Math.random() * 0.3)) * 10) / 10  // 20-50% of baseline (suppresses)
-        followUpACTH = Math.round(Math.random() * 60 + 40)                 // 40-100 pg/mL
         break
         
       case 'adrenal-cushing':
@@ -43,7 +41,6 @@ function DexamethasoneTest() {
         baselineACTH = Math.round(Math.random() * 8 + 2)                   // 2-10 pg/mL (suppressed)
         lowDoseCortisol = Math.round((baselineCortisol * (0.85 + Math.random() * 0.1)) * 10) / 10  // 85-95% of baseline
         highDoseCortisol = Math.round((baselineCortisol * (0.8 + Math.random() * 0.15)) * 10) / 10 // 80-95% of baseline
-        followUpACTH = Math.round(Math.random() * 6 + 2)                   // 2-8 pg/mL
         break
         
       case 'ectopic-acth':
@@ -51,7 +48,6 @@ function DexamethasoneTest() {
         baselineACTH = Math.round(Math.random() * 400 + 100)               // 100-500 pg/mL
         lowDoseCortisol = Math.round((baselineCortisol * (0.9 + Math.random() * 0.08)) * 10) / 10  // 90-98% of baseline
         highDoseCortisol = Math.round((baselineCortisol * (0.85 + Math.random() * 0.1)) * 10) / 10 // 85-95% of baseline
-        followUpACTH = Math.round(Math.random() * 300 + 150)               // 150-450 pg/mL
         break
         
       default:
@@ -59,7 +55,6 @@ function DexamethasoneTest() {
         baselineACTH = 30
         lowDoseCortisol = 2.0
         highDoseCortisol = 1.0
-        followUpACTH = null
     }
     
     const ages = [25, 32, 28, 45, 38, 52, 41, 29, 36, 48]
@@ -76,7 +71,6 @@ function DexamethasoneTest() {
         baselineACTH,
         lowDoseCortisol,
         highDoseCortisol,
-        followUpACTH
       }
     }
   }, [])
@@ -264,13 +258,6 @@ function DexamethasoneTest() {
                     {currentStage === 1 ? `Baseline: ${currentCase.labs.baselineCortisol} μg/dL` : '<5 μg/dL (normal suppression)'}
                   </td>
                 </tr>
-                {currentCase.labs.followUpACTH && (
-                  <tr>
-                    <td className="border border-gray-300 p-3 font-medium">Follow-up ACTH</td>
-                    <td className="border border-gray-300 p-3 text-center">{currentCase.labs.followUpACTH} pg/mL</td>
-                    <td className="border border-gray-300 p-3 text-center text-gray-600">10-60 pg/mL</td>
-                  </tr>
-                )}
               </tbody>
             </table>
           </div>
