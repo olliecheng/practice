@@ -24,7 +24,7 @@ const generateDexamethasoneCase = () => {
 
   switch (diagnosis) {
     case "normal":
-      baselineCortisol = Math.round((Math.random() * 15 + 8) * 10) / 10; // 8.0-23.0 μg/dL
+      baselineCortisol = Math.round((Math.random() * 22 + 8) * 10) / 10; // 22-31 μg/dL
       baselineACTH = Math.round(Math.random() * 40 + 15); // 15-55 pg/mL
       lowDoseCortisol = Math.round((Math.random() * 3 + 1) * 10) / 10; // 1.0-4.0 μg/dL
       highDoseCortisol = Math.round((Math.random() * 2 + 0.5) * 10) / 10; // 0.5-2.5 μg/dL
@@ -144,8 +144,8 @@ const generateDexamethasoneCase = () => {
         options: [
           {
             id: "normal",
-            text: "Normal HPA Axis",
-            description: "Normal suppression response",
+            text: "Non-neoplastic hypercortisolism",
+            description: "Pseudo-Cushing's disease: normal HPA axis",
             correct: diagnosis === "normal",
           },
           {
