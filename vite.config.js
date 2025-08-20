@@ -8,7 +8,9 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html'),
-        dexamethasone: resolve(__dirname, 'dexamethasone.html')
+        dexamethasone: resolve(__dirname, 'dexamethasone.html'),
+        parathyroid: resolve(__dirname, 'parathyroid.html'),
+        hepatitisB: resolve(__dirname, 'hepatitis-b.html')
       }
     }
   }
