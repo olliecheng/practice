@@ -10,3 +10,7 @@ The sitemap looks like this:
 The style should be minimal, with a beige background colour, and modern theme. The typeface should be Fira Sans.
 
 - Only look at the background dev shell to see if your changes have compiled properly.
+
+# Deployment
+
+The website is deployed as a static site on Cloudflare Pages.
