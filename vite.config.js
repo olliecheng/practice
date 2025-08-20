@@ -11,7 +11,8 @@ export default defineConfig({
         dexamethasone: resolve(__dirname, 'dexamethasone.html'),
         parathyroid: resolve(__dirname, 'parathyroid.html'),
         hepatitisB: resolve(__dirname, 'hepatitis-b.html'),
-        lft: resolve(__dirname, "liver-function.html")
+        lft: resolve(__dirname, "liver-function.html"),
+        bacteria: resolve(__dirname, "bacteria.html")
       }
     }
   }

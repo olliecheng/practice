@@ -65,7 +65,7 @@ const generateLiverFunctionCase = () => {
       ggt = randomInRange(50, 80); // Markedly elevated
       alp = randomInRange(70, 130); // Moderately elevated
       alt = randomInRange(180, 300); // Moderately elevated
-      ast = randomInRange(alt * 1.9, alt * 3.2); // More elevated than ALT
+      ast = randomInRange(alt * 2.1, alt * 3.2); // More elevated than ALT
       diagnosisExplanation =
         "Pattern consistent with alcoholic liver disease. Key features include markedly elevated GGT (most sensitive marker for alcohol use), AST > ALT ratio >2:1, and moderately elevated bilirubin. The AST predominance reflects mitochondrial damage characteristic of chronic alcohol use.";
       break;

@@ -17,6 +17,6 @@ Use `npx prettier` for formatting. Run it after every change.
 
 # Deployment
 
-The website is deployed as a static site on Cloudflare Pages.
-
+- The website is deployed as a static site on Cloudflare Pages.
 - Don't run build tests, only use the dev server.
+- Add new pages to @vite.config.js so they can be deployed
