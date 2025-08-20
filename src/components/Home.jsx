@@ -85,6 +85,31 @@ function Home() {
             Start Test →
           </div>
         </a>
+
+        <a
+          href="/liver-function.html"
+          className="flex flex-col justify-between h-full bg-white/90 backdrop-blur-sm rounded-lg shadow-lg hover:shadow-xl hover:bg-white/95 transition-all duration-300 p-6 border border-gray-200/50"
+        >
+          <div className="flex justify-left mb-2 -ml-3">
+            <img
+              src="/liver.jpg"
+              alt="Liver function test icon"
+              className="w-32 h-32 object-contain"
+            />
+          </div>
+          <h2 className="font-serif text-xl font-semibold text-gray-800 mb-3">
+            Liver Function Tests
+          </h2>
+          <div className="flex-grow">
+            <p className="text-gray-600 leading-relaxed">
+              Liver function test interpretation including ALT, AST, ALP, GGT,
+              bilirubin, and albumin patterns
+            </p>
+          </div>
+          <div className="font-serif mt-4 text-blue-600 font-medium">
+            Start Test →
+          </div>
+        </a>
       </div>
     </div>
   );
