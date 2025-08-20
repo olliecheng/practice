@@ -28,7 +28,7 @@ function QuizEngine({ quizConfig }) {
     let isCorrect = false;
     if (currentQuestion.type === "selectOne") {
       const selectedOption = currentQuestion.options.find(
-        (opt) => opt.id === userAnswer
+        (opt) => opt.id === userAnswer,
       );
       isCorrect = selectedOption?.correct === true;
     } else if (currentQuestion.type === "selectAll") {
@@ -62,11 +62,11 @@ function QuizEngine({ quizConfig }) {
   const renderPatientInfo = () => (
     <div className="mb-6">
       <h2 className="text-xl font-semibold mb-3">Patient Case</h2>
-      <div className="bg-gray-50 p-4 rounded-lg">
-        <p className="text-gray-700 mb-2">
+      <div className="bg-gray-50 text-gray-700 p-4 rounded-lg">
+        <p className="mb-2">
           <strong>Patient:</strong> {currentCase.patient.description}
         </p>
-        <p className="text-gray-700 mb-2">
+        <p>
           <strong>Medical History:</strong> {currentCase.patient.mhx}
         </p>
       </div>
@@ -103,6 +103,9 @@ function QuizEngine({ quizConfig }) {
             ))}
           </tbody>
         </table>
+        <div className="mt-4 text-sm text-gray-600">
+          <p>{currentCase.labsAnnotation}</p>
+        </div>
       </div>
     </div>
   );
@@ -119,7 +122,7 @@ function QuizEngine({ quizConfig }) {
         <h3 className="text-lg mb-4">{question.text}</h3>
 
         {question.type === "selectOne" && (
-          <div className="space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {question.options.map((option) => (
               <label
                 key={option.id}
@@ -156,7 +159,7 @@ function QuizEngine({ quizConfig }) {
         )}
 
         {question.type === "selectAll" && (
-          <div className="space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {question.options.map((option) => (
               <label
                 key={option.id}
@@ -220,7 +223,7 @@ function QuizEngine({ quizConfig }) {
 
     if (question.type === "selectOne") {
       const selectedOption = question.options.find(
-        (opt) => opt.id === userAnswer
+        (opt) => opt.id === userAnswer,
       );
       const correctOption = question.options.find((opt) => opt.correct);
       isCorrect = selectedOption?.correct === true;
@@ -229,7 +232,7 @@ function QuizEngine({ quizConfig }) {
     } else if (question.type === "selectAll") {
       correctOptions = question.options.filter((opt) => opt.correct);
       selectedOptions = question.options.filter((opt) =>
-        (userAnswer || []).includes(opt.id)
+        (userAnswer || []).includes(opt.id),
       );
       const correctIds = correctOptions.map((opt) => opt.id);
       const userIds = userAnswer || [];

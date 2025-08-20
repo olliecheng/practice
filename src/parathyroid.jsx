@@ -1,17 +1,68 @@
-import { StrictMode, useState, useCallback } from "react";
+import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 
 import "@fontsource-variable/hanken-grotesk";
 import "@fontsource-variable/bricolage-grotesque";
 
-function ParathyroidTest() {
-  const [currentCase, setCurrentCase] = useState(null);
-  const [selectedDiagnosis, setSelectedDiagnosis] = useState(null);
-  const [showFeedback, setShowFeedback] = useState(false);
-  const [score, setScore] = useState({ correct: 0, total: 0 });
+import QuizEngine from "./components/QuizEngine.jsx";
 
-  const generateRandomCase = useCallback(() => {
+const getArrowForDirection = (direction) => {
+  switch (direction) {
+    case "elevated":
+      return <span className="text-2xl font-bold text-red-600">↑</span>;
+    case "decreased":
+      return <span className="text-2xl font-bold text-blue-600">↓</span>;
+    case "normal":
+      return <span className="text-2xl font-bold text-green-600">→</span>;
+    default:
+      return <span className="text-2xl font-bold text-gray-600">?</span>;
+  }
+};
+
+const getDiagnosisInfo = (diagnosis) => {
+  const info = {
+    "primary-hyperparathyroidism": {
+      title: "Primary Hyperparathyroidism",
+      explanation:
+        "Elevated calcium with inappropriately elevated PTH indicates autonomous parathyroid hormone production, typically from a parathyroid adenoma (85%) or hyperplasia. Key differentiator: occurs in patients WITHOUT chronic kidney disease history. The parathyroid glands are producing excess PTH despite high calcium levels.",
+      pattern: "↑ Calcium, ↑ PTH (no CKD history)",
+      pathophysiology:
+        "Parathyroid adenoma or hyperplasia → excessive PTH → increased bone resorption and renal calcium retention → hypercalcemia",
+    },
+    "secondary-hyperparathyroidism": {
+      title: "Secondary Hyperparathyroidism",
+      explanation:
+        "Low calcium with elevated PTH represents an appropriate physiological response. The parathyroid glands are working correctly to compensate for low calcium due to vitamin D deficiency, malabsorption, or chronic kidney disease.",
+      pattern: "↓ Calcium, ↑ PTH",
+      pathophysiology:
+        "Low calcium (from CKD, vitamin D deficiency, malabsorption) → stimulates parathyroid glands → appropriate ↑ PTH response",
+    },
+    "tertiary-hyperparathyroidism": {
+      title: "Tertiary Hyperparathyroidism",
+      explanation:
+        "Elevated calcium with elevated PTH in a patient WITH chronic kidney disease history. The parathyroid glands became autonomous after years of secondary hyperparathyroidism and continue producing excess PTH despite corrected calcium levels. Critical: requires CKD history to differentiate from primary.",
+      pattern: "↑ Calcium, ↑ PTH (with CKD history)",
+      pathophysiology:
+        "Years of secondary hyperparathyroidism in CKD → parathyroid gland autonomy → persistent ↑ PTH despite normalized calcium",
+    },
+    hypoparathyroidism: {
+      title: "Hypoparathyroidism",
+      explanation:
+        "Low calcium with inappropriately low PTH indicates inadequate parathyroid hormone production. This is commonly seen after thyroid/parathyroid surgery, autoimmune destruction, or genetic causes. The parathyroid glands are not responding appropriately to hypocalcemia.",
+      pattern: "↓ Calcium, ↓ PTH",
+      pathophysiology:
+        "Parathyroid gland damage/removal → insufficient PTH → decreased bone resorption and renal calcium retention → hypocalcemia",
+    },
+  };
+  return info[diagnosis];
+};
+
+const parathyroidQuizConfig = {
+  description:
+    "Each case presents a patient with suspected parathyroid dysfunction. Analyze the calcium and PTH patterns using directional arrows to determine the underlying pathophysiology and make the correct diagnosis.",
+  startButtonText: "Generate First Case",
+  generateCase: () => {
     const diagnoses = [
       "primary-hyperparathyroidism",
       "secondary-hyperparathyroidism",
@@ -131,376 +182,100 @@ function ParathyroidTest() {
         medicalHistory = "No significant past medical history";
     }
 
+    const age = ages[Math.floor(Math.random() * ages.length)];
+    const gender = genders[Math.floor(Math.random() * genders.length)];
+
     return {
-      diagnosis,
       patient: {
-        age: ages[Math.floor(Math.random() * ages.length)],
-        gender: genders[Math.floor(Math.random() * genders.length)],
+        description: `${age}-year-old ${gender.toLowerCase()}`,
+        mhx: medicalHistory,
         clinicalContext,
-        medicalHistory,
       },
-      labs: {
-        calciumDirection,
-        pthDirection,
-      },
+      labs: [
+        {
+          test: "Serum Calcium",
+          result: getArrowForDirection(calciumDirection),
+          normal: (
+            <>
+              8.5-10.5 mg/dL
+              <br />
+              <span className="text-xs">(2.1-2.6 mmol/L)</span>
+            </>
+          ),
+        },
+        {
+          test: "Parathyroid Hormone (PTH)",
+          result: getArrowForDirection(pthDirection),
+          normal: (
+            <>
+              15-65 pg/mL
+              <br />
+              <span className="text-xs">(1.6-6.9 pmol/L)</span>
+            </>
+          ),
+        },
+      ],
+      labsAnnotation: (
+        <>
+          <strong>Legend:</strong> ↑ = Elevated, ↓ = Decreased, → = Normal
+        </>
+      ),
+      questions: [
+        {
+          text: "Select the most likely diagnosis:",
+          type: "selectOne",
+          options: [
+            {
+              id: "primary-hyperparathyroidism",
+              text: "Primary Hyperparathyroidism",
+              description: "Parathyroid adenoma/hyperplasia",
+              correct: diagnosis === "primary-hyperparathyroidism",
+            },
+            {
+              id: "secondary-hyperparathyroidism",
+              text: "Secondary Hyperparathyroidism",
+              description: "Appropriate response to hypocalcemia",
+              correct: diagnosis === "secondary-hyperparathyroidism",
+            },
+            {
+              id: "tertiary-hyperparathyroidism",
+              text: "Tertiary Hyperparathyroidism",
+              description: "Autonomous PTH after chronic secondary",
+              correct: diagnosis === "tertiary-hyperparathyroidism",
+            },
+            {
+              id: "hypoparathyroidism",
+              text: "Hypoparathyroidism",
+              description: "Inadequate PTH production",
+              correct: diagnosis === "hypoparathyroidism",
+            },
+          ],
+          explanation: (
+            <div>
+              <p className="mb-3">
+                <strong>Correct answer:</strong>{" "}
+                {getDiagnosisInfo(diagnosis).title}
+              </p>
+              <p className="mb-3">{getDiagnosisInfo(diagnosis).explanation}</p>
+              <div className="bg-blue-50 p-3 rounded">
+                <p className="text-sm font-medium mb-2 text-blue-800">
+                  Expected pattern: {getDiagnosisInfo(diagnosis).pattern}
+                </p>
+                <p className="text-xs text-blue-700">
+                  <strong>Pathophysiology:</strong>{" "}
+                  {getDiagnosisInfo(diagnosis).pathophysiology}
+                </p>
+              </div>
+            </div>
+          ),
+        },
+      ],
     };
-  }, []);
+  },
+};
 
-  const handleDiagnosisSelection = (diagnosis) => {
-    setSelectedDiagnosis(diagnosis);
-    setShowFeedback(true);
-
-    const isCorrect = diagnosis === currentCase.diagnosis;
-    setScore((prev) => ({
-      correct: prev.correct + (isCorrect ? 1 : 0),
-      total: prev.total + 1,
-    }));
-  };
-
-  const startNewCase = () => {
-    setCurrentCase(generateRandomCase());
-    setSelectedDiagnosis(null);
-    setShowFeedback(false);
-  };
-
-  const getArrowForDirection = (direction) => {
-    switch (direction) {
-      case "elevated":
-        return "↑";
-      case "decreased":
-        return "↓";
-      case "normal":
-        return "→";
-      default:
-        return "?";
-    }
-  };
-
-  const getColorForDirection = (direction) => {
-    switch (direction) {
-      case "elevated":
-        return "text-red-600";
-      case "decreased":
-        return "text-blue-600";
-      case "normal":
-        return "text-green-600";
-      default:
-        return "text-gray-600";
-    }
-  };
-
-  const getDiagnosisInfo = (diagnosis) => {
-    const info = {
-      "primary-hyperparathyroidism": {
-        title: "Primary Hyperparathyroidism",
-        explanation:
-          "Elevated calcium with inappropriately elevated PTH indicates autonomous parathyroid hormone production, typically from a parathyroid adenoma (85%) or hyperplasia. Key differentiator: occurs in patients WITHOUT chronic kidney disease history. The parathyroid glands are producing excess PTH despite high calcium levels.",
-        pattern: "↑ Calcium, ↑ PTH (no CKD history)",
-        color: "red",
-        pathophysiology:
-          "Parathyroid adenoma or hyperplasia → excessive PTH → increased bone resorption and renal calcium retention → hypercalcemia",
-      },
-      "secondary-hyperparathyroidism": {
-        title: "Secondary Hyperparathyroidism",
-        explanation:
-          "Low calcium with elevated PTH represents an appropriate physiological response. The parathyroid glands are working correctly to compensate for low calcium due to vitamin D deficiency, malabsorption, or chronic kidney disease.",
-        pattern: "↓ Calcium, ↑ PTH",
-        color: "blue",
-        pathophysiology:
-          "Low calcium (from CKD, vitamin D deficiency, malabsorption) → stimulates parathyroid glands → appropriate ↑ PTH response",
-      },
-      "tertiary-hyperparathyroidism": {
-        title: "Tertiary Hyperparathyroidism",
-        explanation:
-          "Elevated calcium with elevated PTH in a patient WITH chronic kidney disease history. The parathyroid glands became autonomous after years of secondary hyperparathyroidism and continue producing excess PTH despite corrected calcium levels. Critical: requires CKD history to differentiate from primary.",
-        pattern: "↑ Calcium, ↑ PTH (with CKD history)",
-        color: "purple",
-        pathophysiology:
-          "Years of secondary hyperparathyroidism in CKD → parathyroid gland autonomy → persistent ↑ PTH despite normalized calcium",
-      },
-      hypoparathyroidism: {
-        title: "Hypoparathyroidism",
-        explanation:
-          "Low calcium with inappropriately low PTH indicates inadequate parathyroid hormone production. This is commonly seen after thyroid/parathyroid surgery, autoimmune destruction, or genetic causes. The parathyroid glands are not responding appropriately to hypocalcemia.",
-        pattern: "↓ Calcium, ↓ PTH",
-        color: "orange",
-        pathophysiology:
-          "Parathyroid gland damage/removal → insufficient PTH → decreased bone resorption and renal calcium retention → hypocalcemia",
-      },
-    };
-    return info[diagnosis];
-  };
-
-  if (!currentCase) {
-    return (
-      <div>
-        <p className="text-gray-600 mb-8">
-          Each case presents a patient with suspected parathyroid dysfunction.
-          Analyze the calcium and PTH patterns using directional arrows to
-          determine the underlying pathophysiology and make the correct
-          diagnosis.
-        </p>
-        <button
-          onClick={startNewCase}
-          className="font-serif bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-lg font-medium transition-colors"
-        >
-          Generate First Case
-        </button>
-      </div>
-    );
-  }
-
-  return (
-    <div className="text-left">
-      <div className="mb-6">
-        <h2 className="text-xl font-semibold mb-3">Patient Case</h2>
-        <div className="bg-gray-50 p-4 rounded-lg">
-          <p className="text-gray-700 mb-2">
-            <strong>Patient:</strong> {currentCase.patient.age}-year-old{" "}
-            {currentCase.patient.gender.toLowerCase()}
-          </p>
-          <p className="text-gray-700 mb-2">
-            <strong>Medical History:</strong>{" "}
-            {currentCase.patient.medicalHistory}
-          </p>
-          <p className="text-gray-700">
-            <strong>Clinical Context:</strong>{" "}
-            {currentCase.patient.clinicalContext}
-          </p>
-        </div>
-      </div>
-
-      <div className="mb-8">
-        <h3 className="text-lg font-semibold mb-4">Laboratory Results</h3>
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse border border-gray-300">
-            <thead>
-              <tr className="bg-gray-50">
-                <th className="border border-gray-300 p-3 text-left">Test</th>
-                <th className="border border-gray-300 p-3 text-center">
-                  Result
-                </th>
-                <th className="border border-gray-300 p-3 text-center">
-                  Normal Range
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td className="border border-gray-300 p-3 font-medium">
-                  Serum Calcium
-                </td>
-                <td
-                  className={`border border-gray-300 p-3 text-center text-2xl font-bold ${getColorForDirection(
-                    currentCase.labs.calciumDirection,
-                  )}`}
-                >
-                  {getArrowForDirection(currentCase.labs.calciumDirection)}
-                </td>
-                <td className="border border-gray-300 p-3 text-center text-gray-600">
-                  8.5-10.5 mg/dL
-                  <br />
-                  <span className="text-xs">(2.1-2.6 mmol/L)</span>
-                </td>
-              </tr>
-              <tr className="bg-gray-25">
-                <td className="border border-gray-300 p-3 font-medium">
-                  Parathyroid Hormone (PTH)
-                </td>
-                <td
-                  className={`border border-gray-300 p-3 text-center text-2xl font-bold ${getColorForDirection(
-                    currentCase.labs.pthDirection,
-                  )}`}
-                >
-                  {getArrowForDirection(currentCase.labs.pthDirection)}
-                </td>
-                <td className="border border-gray-300 p-3 text-center text-gray-600">
-                  15-65 pg/mL
-                  <br />
-                  <span className="text-xs">(1.6-6.9 pmol/L)</span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div className="mt-4 text-sm text-gray-600">
-          <p>
-            <strong>Legend:</strong> ↑ = Elevated, ↓ = Decreased, → = Normal
-          </p>
-        </div>
-      </div>
-
-      <div>
-        <h3 className="text-lg font-semibold mb-4">Select Your Diagnosis</h3>
-        <div className="grid gap-3 md:grid-cols-2">
-          <button
-            onClick={() =>
-              !showFeedback &&
-              handleDiagnosisSelection("primary-hyperparathyroidism")
-            }
-            disabled={showFeedback}
-            className={`p-4 text-left border border-gray-300 rounded-lg transition-colors ${
-              showFeedback
-                ? "bg-gray-100 cursor-not-allowed opacity-60"
-                : "hover:bg-gray-50"
-            }`}
-          >
-            <div className="font-medium">Primary Hyperparathyroidism</div>
-            <div className="text-sm text-gray-600">
-              Parathyroid adenoma/hyperplasia
-            </div>
-          </button>
-          <button
-            onClick={() =>
-              !showFeedback &&
-              handleDiagnosisSelection("secondary-hyperparathyroidism")
-            }
-            disabled={showFeedback}
-            className={`p-4 text-left border border-gray-300 rounded-lg transition-colors ${
-              showFeedback
-                ? "bg-gray-100 cursor-not-allowed opacity-60"
-                : "hover:bg-gray-50"
-            }`}
-          >
-            <div className="font-medium">Secondary Hyperparathyroidism</div>
-            <div className="text-sm text-gray-600">
-              Appropriate response to hypocalcemia
-            </div>
-          </button>
-          <button
-            onClick={() =>
-              !showFeedback &&
-              handleDiagnosisSelection("tertiary-hyperparathyroidism")
-            }
-            disabled={showFeedback}
-            className={`p-4 text-left border border-gray-300 rounded-lg transition-colors ${
-              showFeedback
-                ? "bg-gray-100 cursor-not-allowed opacity-60"
-                : "hover:bg-gray-50"
-            }`}
-          >
-            <div className="font-medium">Tertiary Hyperparathyroidism</div>
-            <div className="text-sm text-gray-600">
-              Autonomous PTH after chronic secondary
-            </div>
-          </button>
-          <button
-            onClick={() =>
-              !showFeedback && handleDiagnosisSelection("hypoparathyroidism")
-            }
-            disabled={showFeedback}
-            className={`p-4 text-left border border-gray-300 rounded-lg transition-colors ${
-              showFeedback
-                ? "bg-gray-100 cursor-not-allowed opacity-60"
-                : "hover:bg-gray-50"
-            }`}
-          >
-            <div className="font-medium">Hypoparathyroidism</div>
-            <div className="text-sm text-gray-600">
-              Inadequate PTH production
-            </div>
-          </button>
-        </div>
-      </div>
-
-      {showFeedback && (
-        <div className="mt-8">
-          <div
-            className={`p-6 rounded-lg border mb-6 ${
-              selectedDiagnosis === currentCase.diagnosis
-                ? "bg-green-100 border-green-300"
-                : "bg-red-100 border-red-300"
-            }`}
-          >
-            <h3
-              className={`text-xl font-semibold mb-3 ${
-                selectedDiagnosis === currentCase.diagnosis
-                  ? "text-green-800"
-                  : "text-red-800"
-              }`}
-            >
-              {selectedDiagnosis === currentCase.diagnosis
-                ? "Correct!"
-                : "Incorrect"}
-            </h3>
-
-            {selectedDiagnosis !== currentCase.diagnosis && (
-              <p className="text-red-700 mb-3">
-                Your answer: {getDiagnosisInfo(selectedDiagnosis).title}
-              </p>
-            )}
-
-            <p
-              className={
-                selectedDiagnosis === currentCase.diagnosis
-                  ? "text-green-700"
-                  : "text-red-700"
-              }
-            >
-              <strong>
-                Correct answer: {getDiagnosisInfo(currentCase.diagnosis).title}
-              </strong>
-            </p>
-
-            <p
-              className={`mt-3 ${
-                selectedDiagnosis === currentCase.diagnosis
-                  ? "text-green-700"
-                  : "text-red-700"
-              }`}
-            >
-              {getDiagnosisInfo(currentCase.diagnosis).explanation}
-            </p>
-
-            <div
-              className={`mt-4 p-3 rounded ${
-                selectedDiagnosis === currentCase.diagnosis
-                  ? "bg-green-50"
-                  : "bg-red-50"
-              }`}
-            >
-              <p
-                className={`text-sm font-medium mb-2 ${
-                  selectedDiagnosis === currentCase.diagnosis
-                    ? "text-green-800"
-                    : "text-red-800"
-                }`}
-              >
-                Expected pattern:{" "}
-                {getDiagnosisInfo(currentCase.diagnosis).pattern}
-              </p>
-              <p
-                className={`text-xs ${
-                  selectedDiagnosis === currentCase.diagnosis
-                    ? "text-green-700"
-                    : "text-red-700"
-                }`}
-              >
-                <strong>Pathophysiology:</strong>{" "}
-                {getDiagnosisInfo(currentCase.diagnosis).pathophysiology}
-              </p>
-            </div>
-          </div>
-
-          <div className="text-center mb-4">
-            <div className="text-sm text-gray-600 mb-2">
-              Score: {score.correct}/{score.total} (
-              {score.total > 0
-                ? Math.round((score.correct / score.total) * 100)
-                : 0}
-              %)
-            </div>
-            <button
-              onClick={startNewCase}
-              className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-lg font-medium transition-colors"
-            >
-              Generate New Case
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+function ParathyroidTest() {
+  return <QuizEngine quizConfig={parathyroidQuizConfig} />;
 }
 
 createRoot(document.getElementById("root")).render(
@@ -528,5 +303,5 @@ createRoot(document.getElementById("root")).render(
         </div>
       </div>
     </div>
-  </StrictMode>,
+  </StrictMode>
 );
