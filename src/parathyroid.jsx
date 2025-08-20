@@ -29,6 +29,8 @@ const getDiagnosisInfo = (diagnosis) => {
       pattern: "↑ Calcium, ↑ PTH (no CKD history)",
       pathophysiology:
         "Parathyroid adenoma or hyperplasia → excessive PTH → increased bone resorption and renal calcium retention → hypercalcemia",
+      phosphate:
+        "Phosphate will decrease. Increased calcium will decrease phosphate reabsorption in the kidneys, leading to increased phosphate excretion.",
     },
     "secondary-hyperparathyroidism": {
       title: "Secondary Hyperparathyroidism",
@@ -37,6 +39,8 @@ const getDiagnosisInfo = (diagnosis) => {
       pattern: "↓ Calcium, ↑ PTH",
       pathophysiology:
         "Low calcium (from CKD, vitamin D deficiency, malabsorption) → stimulates parathyroid glands → appropriate ↑ PTH response",
+      phosphate:
+        "Phosphate will increase. Decreased calcium will increase phosphate reabsorption in the kidneys, leading to decreased phosphate excretion.",
     },
     "tertiary-hyperparathyroidism": {
       title: "Tertiary Hyperparathyroidism",
@@ -45,6 +49,8 @@ const getDiagnosisInfo = (diagnosis) => {
       pattern: "↑ Calcium, ↑ PTH (with CKD history)",
       pathophysiology:
         "Years of secondary hyperparathyroidism in CKD → parathyroid gland autonomy → persistent ↑ PTH despite normalized calcium",
+      phosphate:
+        "Phosphate will increase. A terminally biased parathyroid-bone-kidney feedback loop drives increased phosphate reabsorption, despite high calcium.",
     },
     hypoparathyroidism: {
       title: "Hypoparathyroidism",
@@ -53,6 +59,8 @@ const getDiagnosisInfo = (diagnosis) => {
       pattern: "↓ Calcium, ↓ PTH",
       pathophysiology:
         "Parathyroid gland damage/removal → insufficient PTH → decreased bone resorption and renal calcium retention → hypocalcemia",
+      phosphate:
+        "Phosphate will increase. Decreased calcium leads to decreased phosphate excretion in the kidneys.",
     },
   };
   return info[diagnosis];
@@ -268,6 +276,23 @@ const parathyroidQuizConfig = {
               </div>
             </div>
           ),
+        },
+        {
+          text: "What will the effect on phosphate (PO₄) be?",
+          type: "selectOne",
+          options: [
+            {
+              id: "increased",
+              text: "↑ PO₄",
+              correct: diagnosis !== "primary-hyperparathyroidism",
+            },
+            {
+              id: "decreased",
+              text: "↓ PO₄",
+              correct: diagnosis === "primary-hyperparathyroidism",
+            },
+          ],
+          explanation: getDiagnosisInfo(diagnosis).phosphate,
         },
       ],
     };
