@@ -7,7 +7,11 @@ function Home() {
         </h1>
         <p className="text-lg text-gray-600 font-light">
           Bite-sized, digestible interactive medical diagnostic tests and
-          clinical decision-making
+          clinical decision-making.
+        </p>
+        <p className="text-sm text-gray-600 font-light">
+          The level of difficulty is superficially adapted from the University
+          of Melbourne MD1 curriculum and is not intended to be comprehensive.
         </p>
       </header>
 
