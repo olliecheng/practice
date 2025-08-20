@@ -62,11 +62,14 @@ function QuizEngine({ quizConfig }) {
   const renderPatientInfo = () => (
     <div className="mb-6">
       <h2 className="text-xl font-semibold mb-3">Patient Case</h2>
-      <p className="text-gray-700">
-        {currentCase.patient.description} with biochemically confirmed
-        hypercortisolism. Dexamethasone suppression testing performed to
-        determine the source of excess cortisol production.
-      </p>
+      <div className="bg-gray-50 p-4 rounded-lg">
+        <p className="text-gray-700 mb-2">
+          <strong>Patient:</strong> {currentCase.patient.description}
+        </p>
+        <p className="text-gray-700 mb-2">
+          <strong>Medical History:</strong> {currentCase.patient.mhx}
+        </p>
+      </div>
     </div>
   );
 
@@ -113,7 +116,7 @@ function QuizEngine({ quizConfig }) {
 
     return (
       <div key={questionIndex} className="mb-8">
-        <h3 className="text-lg font-semibold mb-4">{question.text}</h3>
+        <h3 className="text-lg mb-4">{question.text}</h3>
 
         {question.type === "selectOne" && (
           <div className="space-y-3">
@@ -195,7 +198,7 @@ function QuizEngine({ quizConfig }) {
           <div className="mt-6">
             <button
               onClick={submitCurrentQuestion}
-              className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+              className="font-serif bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium transition-colors"
             >
               Submit answer
             </button>
@@ -251,18 +254,6 @@ function QuizEngine({ quizConfig }) {
           >
             {isCorrect ? "Correct!" : "Incorrect"}
           </h4>
-
-          {!isCorrect && selectedOptions.length > 0 && (
-            <p className="text-red-700 mb-3">
-              Your answer: {selectedOptions.map((opt) => opt.text).join("; ")}
-            </p>
-          )}
-
-          <p className={isCorrect ? "text-green-700" : "text-red-700"}>
-            <strong>
-              Correct answer: {correctOptions.map((opt) => opt.text).join("; ")}
-            </strong>
-          </p>
 
           {question.explanation}
         </div>

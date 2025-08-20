@@ -16,7 +16,11 @@ const generateDexamethasoneCase = () => {
   ];
   const diagnosis = diagnoses[Math.floor(Math.random() * diagnoses.length)];
 
-  let baselineCortisol, baselineACTH, lowDoseCortisol, highDoseCortisol;
+  let baselineCortisol,
+    baselineACTH,
+    lowDoseCortisol,
+    highDoseCortisol,
+    diagnosisExplanation;
 
   switch (diagnosis) {
     case "normal":
@@ -24,6 +28,8 @@ const generateDexamethasoneCase = () => {
       baselineACTH = Math.round(Math.random() * 40 + 15); // 15-55 pg/mL
       lowDoseCortisol = Math.round((Math.random() * 3 + 1) * 10) / 10; // 1.0-4.0 μg/dL
       highDoseCortisol = Math.round((Math.random() * 2 + 0.5) * 10) / 10; // 0.5-2.5 μg/dL
+      diagnosisExplanation =
+        "Normal suppression with low dose dexamethasone (>50% reduction) indicates intact hypothalamic-pituitary-adrenal axis function. The low-dose suppression rules out pathological hypercortisolism. This patient may have pseudo-Cushing syndrome or subclinical hypercortisolism.";
       break;
 
     case "cushing-disease":
@@ -33,6 +39,8 @@ const generateDexamethasoneCase = () => {
         Math.round(baselineCortisol * (0.7 + Math.random() * 0.25) * 10) / 10; // 70-95% of baseline
       highDoseCortisol =
         Math.round(baselineCortisol * (0.2 + Math.random() * 0.3) * 10) / 10; // 20-50% of baseline (suppresses)
+      diagnosisExplanation =
+        "Elevated baseline cortisol/ACTH with lack of suppression to low dose but >50% suppression with high dose dexamethasone indicates pituitary adenoma secreting ACTH. The pituitary adenoma retains some sensitivity to high-dose dexamethasone feedback.";
       break;
 
     case "adrenal-cushing":
@@ -42,6 +50,8 @@ const generateDexamethasoneCase = () => {
         Math.round(baselineCortisol * (0.85 + Math.random() * 0.1) * 10) / 10; // 85-95% of baseline
       highDoseCortisol =
         Math.round(baselineCortisol * (0.8 + Math.random() * 0.15) * 10) / 10; // 80-95% of baseline
+      diagnosisExplanation =
+        "Very high cortisol with suppressed ACTH and no suppression with either dexamethasone dose indicates autonomous cortisol production from adrenal adenoma or carcinoma. The adrenal tissue operates independently of hypothalamic-pituitary control.";
       break;
 
     case "ectopic-acth":
@@ -51,24 +61,23 @@ const generateDexamethasoneCase = () => {
         Math.round(baselineCortisol * (0.9 + Math.random() * 0.08) * 10) / 10; // 90-98% of baseline
       highDoseCortisol =
         Math.round(baselineCortisol * (0.85 + Math.random() * 0.1) * 10) / 10; // 85-95% of baseline
+      diagnosisExplanation =
+        "Markedly elevated cortisol and ACTH with no suppression to either dexamethasone dose indicates ACTH secretion from a non-pituitary tumor (lung, pancreas, etc.). These tumors do not respond to dexamethasone feedback mechanisms.";
       break;
-
-    default:
-      baselineCortisol = 15.0;
-      baselineACTH = 30;
-      lowDoseCortisol = 2.0;
-      highDoseCortisol = 1.0;
   }
 
   const ages = [25, 32, 28, 45, 38, 52, 41, 29, 36, 48];
   const genders = ["male", "female"];
+
+  const isLowDoseSuppressed = lowDoseCortisol < baselineCortisol * 0.5;
+  const isHighDoseSuppressed = highDoseCortisol < baselineCortisol * 0.5;
 
   return {
     patient: {
       description: `${ages[Math.floor(Math.random() * ages.length)]}-year-old ${
         genders[Math.floor(Math.random() * genders.length)]
       }`,
-      mhx: "<medical history>",
+      mhx: "Biochemically confirmed hypercortisolism. Dexamethasone suppression testing was performed to determine the source of excess cortisol production.",
     },
     labs: [
       {
@@ -95,24 +104,39 @@ const generateDexamethasoneCase = () => {
     questions: [
       {
         type: "selectAll",
-        text: "Based on the dexamethasone suppression test results above, which doses effectively suppressed cortisol? (Suppression is typically defined as >50% reduction from baseline)",
+        text: "Based on the dexamethasone suppression test results above, which doses effectively suppressed cortisol?",
         options: [
           {
             id: "lowDoseSuppress",
             title: "Suppression Assessment",
             text: "Low dose dexamethasone suppresses cortisol",
-            description: `Does ${lowDoseCortisol} μg/dL represents effective suppression from baseline (${baselineCortisol} μg/dL)?`,
-            correct: lowDoseCortisol < baselineCortisol * 0.5,
+            description: `Does ${lowDoseCortisol} μg/dL represent effective suppression from baseline (${baselineCortisol} μg/dL)?`,
+            correct: isLowDoseSuppressed,
           },
           {
             id: "highDoseSuppress",
             title: "Diagnosis",
             text: "High dose dexamethasone suppresses cortisol",
-            description: `Does ${highDoseCortisol} μg/dL effective suppression from baseline (${baselineCortisol} μg/dL)?`,
-            correct: highDoseCortisol < baselineCortisol * 0.5,
+            description: `Does ${highDoseCortisol} μg/dL represent effective suppression from baseline (${baselineCortisol} μg/dL)?`,
+            correct: isHighDoseSuppressed,
           },
         ],
-        explanation: "test",
+        explanation: (
+          <ul>
+            <li>
+              <b>Low dose </b>
+              {isLowDoseSuppressed
+                ? "suppresses cortisol (< 50% of baseline)"
+                : "does not suppress cortisol (> 50% of baseline)"}
+            </li>
+            <li>
+              <b>High dose </b>
+              {isHighDoseSuppressed
+                ? "suppresses cortisol (< 50% of baseline)"
+                : "does not suppress cortisol (> 50% of baseline)"}
+            </li>
+          </ul>
+        ),
       },
       {
         type: "selectOne",
@@ -123,35 +147,27 @@ const generateDexamethasoneCase = () => {
             text: "Normal HPA Axis",
             description: "Normal suppression response",
             correct: diagnosis === "normal",
-            explanation:
-              "Normal suppression with low dose dexamethasone (>50% reduction) indicates intact hypothalamic-pituitary-adrenal axis function. The low-dose suppression rules out pathological hypercortisolism. This patient may have pseudo-Cushing syndrome or subclinical hypercortisolism.",
           },
           {
             id: "cushing-disease",
             text: "Cushing Disease",
             description: "Pituitary adenoma",
             correct: diagnosis === "cushing-disease",
-            explanation:
-              "Elevated baseline cortisol/ACTH with lack of suppression to low dose but >50% suppression with high dose dexamethasone indicates pituitary adenoma secreting ACTH. The pituitary adenoma retains some sensitivity to high-dose dexamethasone feedback.",
           },
           {
             id: "adrenal-cushing",
             text: "Primary Adrenal Disease",
             description: "Adrenal adenoma/carcinoma",
             correct: diagnosis === "adrenal-cushing",
-            explanation:
-              "Very high cortisol with suppressed ACTH and no suppression with either dexamethasone dose indicates autonomous cortisol production from adrenal adenoma or carcinoma. The adrenal tissue operates independently of hypothalamic-pituitary control.",
           },
           {
             id: "ectopic-acth",
             text: "Ectopic ACTH Syndrome",
             description: "Non-pituitary ACTH source",
             correct: diagnosis === "ectopic-acth",
-            explanation:
-              "Markedly elevated cortisol and ACTH with no suppression to either dexamethasone dose indicates ACTH secretion from a non-pituitary tumor (lung, pancreas, etc.). These tumors do not respond to dexamethasone feedback mechanisms.",
           },
         ],
-        explanation: "test",
+        explanation: diagnosisExplanation,
       },
     ],
   };
