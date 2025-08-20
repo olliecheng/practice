@@ -41,12 +41,12 @@ const generateBacteriaCase = () => {
     },
     {
       id: "strep-pyogenes",
-      text: "Streptococcus pyogenes (Group A)",
+      text: "Streptococcus pyogenes",
       correct: species === "Strep pyogenes",
     },
     {
       id: "strep-agalactiae",
-      text: "Streptococcus agalactiae (Group B)",
+      text: "Streptococcus agalactiae",
       correct: species === "Strep agalactiae",
     },
     {
