@@ -200,8 +200,9 @@ createRoot(document.getElementById("root")).render(
             {DEXAMETHASONE_CONFIG.title}
           </h1>
           <p className="text-gray-600">
-            Practice interpreting dexamethasone suppression test results to
-            determine the source of hypercortisolism
+            The dexamethasone test measures cortisol before and after taking
+            dexamethasone to check if cortisol levels are under normal
+            physiological control.
           </p>
         </header>
 

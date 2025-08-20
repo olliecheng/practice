@@ -6,19 +6,7 @@ import "@fontsource-variable/hanken-grotesk";
 import "@fontsource-variable/bricolage-grotesque";
 
 import QuizEngine from "./components/QuizEngine.jsx";
-
-const getArrowForDirection = (direction) => {
-  switch (direction) {
-    case "elevated":
-      return <span className="text-2xl font-bold text-red-600">↑</span>;
-    case "decreased":
-      return <span className="text-2xl font-bold text-blue-600">↓</span>;
-    case "normal":
-      return <span className="text-2xl font-bold text-green-600">→</span>;
-    default:
-      return <span className="text-2xl font-bold text-gray-600">?</span>;
-  }
-};
+import { getArrowForDirection } from "./utils/labUtils.jsx";
 
 const getDiagnosisInfo = (diagnosis) => {
   const info = {
@@ -70,6 +58,7 @@ const parathyroidQuizConfig = {
   description:
     "Each case presents a patient with suspected parathyroid dysfunction. Analyze the calcium and PTH patterns using directional arrows to determine the underlying pathophysiology and make the correct diagnosis.",
   startButtonText: "Generate First Case",
+  hideNormalValues: true,
   generateCase: () => {
     const diagnoses = [
       "primary-hyperparathyroidism",
@@ -328,5 +317,5 @@ createRoot(document.getElementById("root")).render(
         </div>
       </div>
     </div>
-  </StrictMode>
+  </StrictMode>,
 );

@@ -1,90 +1,69 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import "./index.css";
+import { getPosNeg } from "./utils/labUtils.jsx";
 
 import "@fontsource-variable/hanken-grotesk";
 import "@fontsource-variable/bricolage-grotesque";
 
+import "./index.css";
+
 import QuizEngine from "./components/QuizEngine.jsx";
 
 const generateHepatitisBCase = () => {
-  const scenarios = [
-    "susceptible",
-    "resolved",
-    "vaccinated",
-    "acute",
-    "chronic",
-    "inconclusive",
-  ];
+  const scenarios = ["resolved", "vaccinated", "acute", "chronic"];
   const scenario = scenarios[Math.floor(Math.random() * scenarios.length)];
 
-  let hbsAg, antiHBc, antiHBs, igmAntiHBc, interpretation, clinicalAction;
+  let hbsAg, hbeAg, antiHBe, antiHBcIgM, antiHBsAg, antiHBcIgG, interpretation;
 
   switch (scenario) {
-    case "susceptible":
-      hbsAg = "Negative";
-      antiHBc = "Negative";
-      antiHBs = "Negative";
-      igmAntiHBc = "Negative";
-      interpretation =
-        "Susceptible to hepatitis B infection. No evidence of prior infection or vaccination.";
-      clinicalAction =
-        "Recommend hepatitis B vaccination series (3 doses). Consider risk factors and occupational exposure.";
-      break;
-
-    case "resolved":
-      hbsAg = "Negative";
-      antiHBc = "Positive";
-      antiHBs = "Positive";
-      igmAntiHBc = "Negative";
-      interpretation =
-        "Resolved hepatitis B infection with immunity. Past infection with recovery and protective antibodies.";
-      clinicalAction =
-        "No further testing or vaccination needed. Patient has lifelong immunity. Monitor if immunocompromised.";
-      break;
-
-    case "vaccinated":
-      hbsAg = "Negative";
-      antiHBc = "Negative";
-      antiHBs = "Positive";
-      igmAntiHBc = "Negative";
-      interpretation =
-        "Immune due to hepatitis B vaccination. Surface antibodies from vaccination, not natural infection.";
-      clinicalAction =
-        "No further action needed. Consider booster if Anti-HBs levels fall below 10 mIU/mL in high-risk patients.";
-      break;
-
     case "acute":
-      hbsAg = "Positive";
-      antiHBc = "Positive";
-      antiHBs = "Negative";
-      igmAntiHBc = "Positive";
+      hbsAg = "positive";
+      hbeAg = "positive";
+      antiHBe = "negative";
+      antiHBcIgM = "positive";
+      antiHBcIgG = "negative";
+      antiHBsAg = "negative";
       interpretation =
         "Acute hepatitis B infection. Active viral replication with recent infection markers.";
-      clinicalAction =
-        "Monitor closely for fulminant hepatitis. Supportive care, avoid hepatotoxic drugs. Contact tracing and prevention counseling.";
       break;
 
     case "chronic":
-      hbsAg = "Positive";
-      antiHBc = "Positive";
-      antiHBs = "Negative";
-      igmAntiHBc = "Negative";
+      hbsAg = "positive";
+      antiHBcIgM = "negative";
+      antiHBcIgG = "positive";
+      antiHBsAg = "negative";
       interpretation =
-        "Chronic hepatitis B infection. Persistent viral presence without IgM, indicating chronic infection.";
-      clinicalAction =
-        "Refer to hepatology/gastroenterology. Monitor HBV DNA, ALT. Screen for hepatitis D co-infection. Vaccination contacts.";
+        "Chronic hepatitis B infection. Persistent viral presence without IgM, indicating chronic infection. HBeAg+ indicates active chronic infection, Anti-HBe indicates inactive chronic infection.";
+
+      if (Math.random() < 0.5) {
+        hbeAg = "negative";
+        antiHBe = "positive";
+      } else {
+        hbeAg = "positive";
+        antiHBe = "negative";
+      }
       break;
 
-    case "inconclusive":
-      hbsAg = "Negative";
-      antiHBc = "Positive";
-      antiHBs = "Negative";
-      igmAntiHBc = "Negative";
+    case "resolved":
+      hbsAg = "negative";
+      hbeAg = "negative";
+      antiHBe = "positive";
+      antiHBcIgM = "negative";
+      antiHBcIgG = "positive";
+      antiHBsAg = "positive";
       interpretation =
-        "Inconclusive pattern. Core antibody positive but no surface antigen or antibody. Multiple interpretations possible.";
-      clinicalAction =
-        "Repeat testing in 2-4 weeks. Consider HBV DNA testing. May represent waning immunity, window period, or false positive.";
+        "Resolved hepatitis B infection with immunity. Past infection with recovery and protective antibodies.";
+      break;
+
+    case "vaccinated":
+      hbsAg = "negative";
+      hbeAg = "negative";
+      antiHBe = "negative";
+      antiHBcIgM = "negative";
+      antiHBcIgG = "negative";
+      antiHBsAg = "positive";
+      interpretation =
+        "Immune due to hepatitis B vaccination. Surface antibodies from vaccination, not natural infection.";
       break;
   }
 
@@ -106,28 +85,34 @@ const generateHepatitisBCase = () => {
       description: `${ages[Math.floor(Math.random() * ages.length)]}-year-old ${
         genders[Math.floor(Math.random() * genders.length)]
       }`,
-      mhx: `Patient presents for ${presentations[Math.floor(Math.random() * presentations.length)]}. Hepatitis B serology was ordered as part of evaluation.`,
+      mhx: `Patient presents for ${
+        presentations[Math.floor(Math.random() * presentations.length)]
+      }. Hepatitis B serology was ordered as part of evaluation.`,
     },
     labs: [
       {
-        test: "HBsAg (Hepatitis B Surface Antigen)",
-        result: hbsAg,
-        normal: "Negative",
+        test: "HBsAg",
+        result: getPosNeg(hbsAg),
       },
       {
-        test: "Anti-HBc (Hepatitis B Core Antibody)",
-        result: antiHBc,
-        normal: "Negative",
+        test: "HBeAg",
+        result: getPosNeg(hbeAg),
       },
       {
-        test: "Anti-HBs (Hepatitis B Surface Antibody)",
-        result: antiHBs,
-        normal: "Negative (unless vaccinated)",
+        test: "Anti-HBe",
+        result: getPosNeg(antiHBe),
       },
       {
-        test: "IgM Anti-HBc (IgM Core Antibody)",
-        result: igmAntiHBc,
-        normal: "Negative",
+        test: "Anti-HBc IgM",
+        result: getPosNeg(antiHBcIgM),
+      },
+      {
+        test: "Anti-HBc IgG",
+        result: getPosNeg(antiHBcIgG),
+      },
+      {
+        test: "Anti-HBsAg",
+        result: getPosNeg(antiHBsAg),
       },
     ],
     labsAnnotation:
@@ -137,12 +122,6 @@ const generateHepatitisBCase = () => {
         type: "selectOne",
         text: "Based on this hepatitis B serology pattern, what is the most likely interpretation?",
         options: [
-          {
-            id: "susceptible",
-            text: "Susceptible (consider vaccination)",
-            description: "No evidence of infection or immunity",
-            correct: scenario === "susceptible",
-          },
           {
             id: "resolved",
             text: "Resolved HBV infection",
@@ -167,140 +146,32 @@ const generateHepatitisBCase = () => {
             description: "Chronic persistent infection",
             correct: scenario === "chronic",
           },
-          {
-            id: "inconclusive",
-            text: "Inconclusive/Various possibilities",
-            description: "Unclear pattern requiring further testing",
-            correct: scenario === "inconclusive",
-          },
         ],
         explanation: (
           <div>
             <p className="mb-3">
               <strong>Interpretation:</strong> {interpretation}
             </p>
-            <div className="text-sm">
-              <p className="font-semibold mb-2">Serology Pattern Analysis:</p>
-              <ul className="list-disc list-inside space-y-1">
-                <li>
-                  <strong>HBsAg {hbsAg}:</strong>{" "}
-                  {hbsAg === "Positive"
-                    ? "Active infection present"
-                    : "No active infection"}
-                </li>
-                <li>
-                  <strong>Anti-HBc {antiHBc}:</strong>{" "}
-                  {antiHBc === "Positive"
-                    ? "Past or current infection"
-                    : "No prior infection"}
-                </li>
-                <li>
-                  <strong>Anti-HBs {antiHBs}:</strong>{" "}
-                  {antiHBs === "Positive"
-                    ? "Protective immunity present"
-                    : "No protective antibodies"}
-                </li>
-                <li>
-                  <strong>IgM Anti-HBc {igmAntiHBc}:</strong>{" "}
-                  {igmAntiHBc === "Positive"
-                    ? "Recent/acute infection"
-                    : "No acute infection"}
-                </li>
-              </ul>
-            </div>
           </div>
         ),
       },
       {
-        type: "selectAll",
-        text: "What are the most appropriate next steps in management? (Select all that apply)",
+        type: "selectOne",
+        text: "What do you expect HBV-DNA to be in this patient?",
         options: [
           {
-            id: "vaccinate",
-            text: "Recommend hepatitis B vaccination",
-            description: "Initiate 3-dose vaccination series",
-            correct: scenario === "susceptible",
+            id: "high",
+            text: "Positive",
+            correct: ["acute", "chronic"].includes(scenario),
           },
           {
-            id: "monitor",
-            text: "Clinical monitoring and supportive care",
-            description: "Close follow-up for complications",
-            correct: scenario === "acute",
-          },
-          {
-            id: "specialist",
-            text: "Refer to hepatology/gastroenterology",
-            description: "Specialist evaluation for chronic disease",
-            correct: scenario === "chronic",
-          },
-          {
-            id: "repeat",
-            text: "Repeat testing in 2-4 weeks",
-            description: "Clarify inconclusive results",
-            correct: scenario === "inconclusive",
-          },
-          {
-            id: "noAction",
-            text: "No further action needed",
-            description: "Patient has adequate immunity",
-            correct: scenario === "resolved" || scenario === "vaccinated",
-          },
-          {
-            id: "contactTrace",
-            text: "Contact tracing and prevention counseling",
-            description: "Identify and protect exposed contacts",
-            correct: scenario === "acute" || scenario === "chronic",
+            id: "low",
+            text: "Negative",
+            correct: !["acute", "chronic"].includes(scenario),
           },
         ],
-        explanation: (
-          <div>
-            <p className="mb-3">
-              <strong>Recommended Management:</strong> {clinicalAction}
-            </p>
-            <div className="text-sm">
-              <p className="font-semibold mb-2">Clinical Considerations:</p>
-              <ul className="list-disc list-inside space-y-1">
-                {scenario === "susceptible" && (
-                  <>
-                    <li>Complete 3-dose vaccination series (0, 1, 6 months)</li>
-                    <li>Consider accelerated schedule if high risk</li>
-                    <li>Post-vaccination testing in high-risk patients</li>
-                  </>
-                )}
-                {scenario === "acute" && (
-                  <>
-                    <li>Monitor for fulminant hepatitis (rare but serious)</li>
-                    <li>Avoid hepatotoxic medications</li>
-                    <li>Supportive care, most cases resolve spontaneously</li>
-                    <li>Contact tracing for sexual and household contacts</li>
-                  </>
-                )}
-                {scenario === "chronic" && (
-                  <>
-                    <li>Monitor HBV DNA levels and liver function</li>
-                    <li>Screen for hepatitis D co-infection</li>
-                    <li>Consider antiviral therapy based on guidelines</li>
-                    <li>Hepatocellular carcinoma screening</li>
-                  </>
-                )}
-                {(scenario === "resolved" || scenario === "vaccinated") && (
-                  <>
-                    <li>Lifelong immunity expected</li>
-                    <li>No routine re-vaccination needed</li>
-                    <li>Consider booster in immunocompromised patients</li>
-                  </>
-                )}
-                {scenario === "inconclusive" && (
-                  <>
-                    <li>May represent waning immunity</li>
-                    <li>Could be in window period of acute infection</li>
-                    <li>HBV DNA testing may help clarify</li>
-                  </>
-                )}
-              </ul>
-            </div>
-          </div>
-        ),
+        explanation:
+          "HBV-DNA indicates viral replication, which occurs during acute or chronic infection.",
       },
     ],
   };
@@ -311,6 +182,7 @@ const HEPATITIS_B_CONFIG = {
   description:
     "Each case presents a patient with hepatitis B serology results. Analyze the pattern of HBsAg, Anti-HBc, Anti-HBs, and IgM Anti-HBc to determine the clinical status and appropriate management.",
   startButtonText: "Generate First Case",
+  hideNormalValues: true,
   generateCase: generateHepatitisBCase,
 };
 
@@ -344,5 +216,5 @@ createRoot(document.getElementById("root")).render(
         </div>
       </div>
     </div>
-  </StrictMode>,
+  </StrictMode>
 );

@@ -82,9 +82,11 @@ function QuizEngine({ quizConfig }) {
             <tr className="bg-gray-50">
               <th className="border border-gray-300 p-3 text-left">Test</th>
               <th className="border border-gray-300 p-3 text-center">Result</th>
-              <th className="border border-gray-300 p-3 text-center">
-                Normal Range
-              </th>
+              {!quizConfig.hideNormalValues && (
+                <th className="border border-gray-300 p-3 text-center">
+                  Normal Range
+                </th>
+              )}
             </tr>
           </thead>
           <tbody>
@@ -96,9 +98,11 @@ function QuizEngine({ quizConfig }) {
                 <td className="border border-gray-300 p-3 text-center">
                   {lab.result}
                 </td>
-                <td className="border border-gray-300 p-3 text-center text-gray-600">
-                  {lab.normal}
-                </td>
+                {!quizConfig.hideNormalValues && (
+                  <td className="border border-gray-300 p-3 text-center text-gray-600">
+                    {lab.normal}
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>
